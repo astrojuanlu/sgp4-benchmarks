@@ -2,4 +2,6 @@ git+https://github.com/astrojuanlu/python-sgp4.git@the-return-of-numba#egg=sgp4 
 git+https://github.com/astrojuanlu/python-sgp4.git@numpy-vectorization#egg=sgp4-vec  # Fork of git+https://github.com/enritoomey/python-sgp4.git@master to change the package name
 cysgp4
 
+numba  # Not properly declared in python-sgp4
+
 pytest-benchmark
