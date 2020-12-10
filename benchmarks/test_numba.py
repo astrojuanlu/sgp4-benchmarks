@@ -1,10 +1,15 @@
 import numpy as np
 from numpy.testing import assert_allclose
+from numba.typed import List
 import pytest
 
 from sgp4.model import WGS72
 from sgp4.api import jday
-from sgp4.fast.model import Satrec as NumbaSatrec, twoline2rv as numba_twoline2rv
+from sgp4.fast.model import (
+    Satrec as NumbaSatrec,
+    SatrecArray as NumbaSatrecArray,
+    twoline2rv as numba_twoline2rv,
+)
 
 
 def datetime_components(epoch):
@@ -54,6 +59,26 @@ def test_single_satellite_multiple_dates(
 
     satrec = numba_twoline2rv(NumbaSatrec(), line1, line2, WGS72)
     e, r, v = benchmark(satrec.sgp4_array, jd, fr)
+
+    assert_allclose(e, 0)
+    assert_allclose(r, expected_rs)
+    assert_allclose(v, expected_vs)
+
+
+def test_multiple_satellites_multiple_dates(
+    multiple_satellites_multiple_dates_data, benchmark
+):
+    (
+        tles,
+        epochs,
+        expected_rs,
+        expected_vs,
+    ) = multiple_satellites_multiple_dates_data
+    jd, fr = jday_from_epochs(epochs)
+    satellites = List([numba_twoline2rv(NumbaSatrec(), *tle, WGS72) for tle in tles])
+
+    satrec_array = NumbaSatrecArray(satellites)
+    e, r, v = benchmark(satrec_array.sgp4, jd, fr)
 
     assert_allclose(e, 0)
     assert_allclose(r, expected_rs)
