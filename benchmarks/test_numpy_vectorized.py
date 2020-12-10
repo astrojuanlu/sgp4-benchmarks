@@ -41,12 +41,21 @@ def test_single_satellite_single_date(single_satellite_single_date_data, benchma
     assert v == pytest.approx(expected_v)
 
 
-def test_single_satellite_multiple_dates(single_satellite_multiple_dates_data, benchmark):
-    (line1, line2), epochs, expected_rs, expected_vs = single_satellite_multiple_dates_data
+def test_single_satellite_multiple_dates(
+    single_satellite_multiple_dates_data, benchmark
+):
+    (
+        (line1, line2),
+        epochs,
+        expected_rs,
+        expected_vs,
+    ) = single_satellite_multiple_dates_data
     jd = jday_from_epochs(epochs)
 
     satellite = vec_twoline2rv(line1, line2, wgs72)
-    (rx, ry, rz), (vx, vy, vz) = benchmark(sgp4, satellite, (jd - satellite.jdsatepoch) * minutes_per_day)
+    (rx, ry, rz), (vx, vy, vz) = benchmark(
+        sgp4, satellite, (jd - satellite.jdsatepoch) * minutes_per_day
+    )
     r = np.array([rx, ry, rz]).T
     v = np.array([vx, vy, vz]).T
 

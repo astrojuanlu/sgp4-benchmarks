@@ -40,8 +40,15 @@ def test_single_satellite_single_date(single_satellite_single_date_data, benchma
     assert v == pytest.approx(expected_v)
 
 
-def test_single_satellite_multiple_dates(single_satellite_multiple_dates_data, benchmark):
-    (line1, line2), epochs, expected_rs, expected_vs = single_satellite_multiple_dates_data
+def test_single_satellite_multiple_dates(
+    single_satellite_multiple_dates_data, benchmark
+):
+    (
+        (line1, line2),
+        epochs,
+        expected_rs,
+        expected_vs,
+    ) = single_satellite_multiple_dates_data
     jd, fr = jday_from_epochs(epochs)
 
     satrec = CPPWrapperSatrec.twoline2rv(line1, line2, WGS72)
