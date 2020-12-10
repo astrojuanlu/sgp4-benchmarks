@@ -14,8 +14,10 @@ packaging==20.7           # via pytest
 pluggy==0.13.1            # via pytest
 py-cpuinfo==7.0.0         # via pytest-benchmark
 py==1.9.0                 # via pytest
+pygal==2.4.0              # via pytest-benchmark
+pygaljs==1.0.2            # via pytest-benchmark
 pyparsing==2.4.7          # via packaging
-pytest-benchmark==3.2.3   # via -r requirements.in
+pytest-benchmark[histogram]==3.2.3  # via -r requirements.in
 pytest==6.1.2             # via pytest-benchmark
 git+https://github.com/astrojuanlu/python-sgp4.git@the-return-of-numba#egg=sgp4  # via -r requirements.in
 git+https://github.com/astrojuanlu/python-sgp4.git@numpy-vectorization#egg=sgp4-vec  # via -r requirements.in

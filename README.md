@@ -17,3 +17,9 @@ To run the benchmarks:
 ```
 (env) $ pytest
 ```
+
+and, to produce the histogram plots,
+
+```
+(env) $ pytest --benchmark-histogram
+```

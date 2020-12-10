@@ -4,4 +4,4 @@ cysgp4
 
 numba  # Not properly declared in python-sgp4
 
-pytest-benchmark
+pytest-benchmark[histogram]
