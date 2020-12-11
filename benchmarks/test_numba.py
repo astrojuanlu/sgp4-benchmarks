@@ -7,7 +7,8 @@ from sgp4.model import WGS72
 from sgp4.api import jday
 from sgp4.fast.model import (
     Satrec as NumbaSatrec,
-    SatrecArray as NumbaSatrecArray,
+    sgp4_array as numba_sgp4_array,
+    sgp4_many as numba_sgp4_many,
     twoline2rv as numba_twoline2rv,
 )
 
@@ -58,7 +59,7 @@ def test_single_satellite_multiple_dates(
     jd, fr = jday_from_epochs(epochs)
 
     satrec = numba_twoline2rv(NumbaSatrec(), line1, line2, WGS72)
-    e, r, v = benchmark(satrec.sgp4_array, jd, fr)
+    e, r, v = benchmark(numba_sgp4_array, satrec, jd, fr)
 
     assert_allclose(e, 0)
     assert_allclose(r, expected_rs)
@@ -77,8 +78,7 @@ def test_multiple_satellites_multiple_dates(
     jd, fr = jday_from_epochs(epochs)
     satellites = List([numba_twoline2rv(NumbaSatrec(), *tle, WGS72) for tle in tles])
 
-    satrec_array = NumbaSatrecArray(satellites)
-    e, r, v = benchmark(satrec_array.sgp4, jd, fr)
+    e, r, v = benchmark(numba_sgp4_many, satellites, jd, fr)
 
     assert_allclose(e, 0)
     assert_allclose(r, expected_rs)
