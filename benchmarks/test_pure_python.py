@@ -100,6 +100,7 @@ def test_multiple_satellites_multiple_dates_medium(
     assert_allclose(v, expected_vs)
 
 
+@pytest.mark.slow
 def test_multiple_satellites_multiple_dates_large(
     multiple_satellites_multiple_dates_data_large, benchmark
 ):
