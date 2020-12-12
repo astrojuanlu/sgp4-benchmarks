@@ -29,6 +29,28 @@ def jday_from_epochs(epochs):
     return np.array(jd_l)
 
 
+# Custom function, not present in the original implementation
+def numpy_sgp4_many(satellites, jd, whichconst=None):
+    n = len(satellites)
+    m = len(jd)
+
+    r_array = np.zeros((n, m, 3))
+    v_array = np.zeros((n, m, 3))
+
+    for ii in range(n):
+        satellite = satellites[ii]
+
+        (rx, ry, rz), (vx, vy, vz) = sgp4(
+            satellite,
+            (jd - satellite.jdsatepoch) * minutes_per_day,
+            whichconst,
+        )
+        r_array[ii] = np.array([rx, ry, rz]).T
+        v_array[ii] = np.array([vx, vy, vz]).T
+
+    return r_array, v_array
+
+
 def test_single_satellite_single_date(single_satellite_single_date_data, benchmark):
     (line1, line2), epoch, expected_r, expected_v = single_satellite_single_date_data
     components = datetime_components(epoch)
@@ -82,5 +104,38 @@ def test_single_satellite_multiple_dates_large(
     v = np.array([vx, vy, vz]).T
 
     assert_allclose(satellite.error, 0)
+    assert r.shape == expected_shape
+    assert v.shape == expected_shape
+
+
+def test_multiple_satellites_multiple_dates_medium(
+    multiple_satellites_multiple_dates_data_medium, benchmark
+):
+    (
+        tles,
+        epochs,
+        expected_rs,
+        expected_vs,
+    ) = multiple_satellites_multiple_dates_data_medium
+    jd = jday_from_epochs(epochs)
+
+    satellites = [vec_twoline2rv(*tle, wgs72) for tle in tles]
+    r, v = benchmark(numpy_sgp4_many, satellites, jd)
+
+    assert all(satellite.error == 0 for satellite in satellites)
+    assert_allclose(r, expected_rs, rtol=1e-5)  # Default rtol=1e-7 makes test fail
+    assert_allclose(v, expected_vs, rtol=1e-5)  # Default rtol=1e-7 makes test fail
+
+
+def test_multiple_satellites_multiple_dates_large(
+    multiple_satellites_multiple_dates_data_large, benchmark
+):
+    (tles, epochs, expected_shape) = multiple_satellites_multiple_dates_data_large
+    jd = jday_from_epochs(epochs)
+
+    satellites = [vec_twoline2rv(*tle, wgs72) for tle in tles]
+    r, v = benchmark(numpy_sgp4_many, satellites, jd)
+
+    assert all(satellite.error == 0 for satellite in satellites)
     assert r.shape == expected_shape
     assert v.shape == expected_shape
