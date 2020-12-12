@@ -41,15 +41,15 @@ def test_single_satellite_single_date(single_satellite_single_date_data, benchma
     assert v == pytest.approx(expected_v)
 
 
-def test_single_satellite_multiple_dates(
-    single_satellite_multiple_dates_data, benchmark
+def test_single_satellite_multiple_dates_medium(
+    single_satellite_multiple_dates_data_medium, benchmark
 ):
     (
         (line1, line2),
         epochs,
         expected_rs,
         expected_vs,
-    ) = single_satellite_multiple_dates_data
+    ) = single_satellite_multiple_dates_data_medium
     jd = jday_from_epochs(epochs)
 
     satellite = vec_twoline2rv(line1, line2, wgs72)
@@ -62,3 +62,25 @@ def test_single_satellite_multiple_dates(
     assert_allclose(satellite.error, 0)
     assert_allclose(r, expected_rs, rtol=1e-5)  # Default rtol=1e-7 makes test fail
     assert_allclose(v, expected_vs, rtol=1e-5)  # Default rtol=1e-7 makes test fail
+
+
+def test_single_satellite_multiple_dates_large(
+    single_satellite_multiple_dates_data_large, benchmark
+):
+    (
+        (line1, line2),
+        epochs,
+        expected_shape,
+    ) = single_satellite_multiple_dates_data_large
+    jd = jday_from_epochs(epochs)
+
+    satellite = vec_twoline2rv(line1, line2, wgs72)
+    (rx, ry, rz), (vx, vy, vz) = benchmark(
+        sgp4, satellite, (jd - satellite.jdsatepoch) * minutes_per_day
+    )
+    r = np.array([rx, ry, rz]).T
+    v = np.array([vx, vy, vz]).T
+
+    assert_allclose(satellite.error, 0)
+    assert r.shape == expected_shape
+    assert v.shape == expected_shape

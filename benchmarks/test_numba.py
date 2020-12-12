@@ -47,15 +47,15 @@ def test_single_satellite_single_date(single_satellite_single_date_data, benchma
     assert v == pytest.approx(expected_v)
 
 
-def test_single_satellite_multiple_dates(
-    single_satellite_multiple_dates_data, benchmark
+def test_single_satellite_multiple_dates_medium(
+    single_satellite_multiple_dates_data_medium, benchmark
 ):
     (
         (line1, line2),
         epochs,
         expected_rs,
         expected_vs,
-    ) = single_satellite_multiple_dates_data
+    ) = single_satellite_multiple_dates_data_medium
     jd, fr = jday_from_epochs(epochs)
 
     satrec = numba_twoline2rv(NumbaSatrec(), line1, line2, WGS72)
@@ -66,15 +66,33 @@ def test_single_satellite_multiple_dates(
     assert_allclose(v, expected_vs)
 
 
-def test_multiple_satellites_multiple_dates(
-    multiple_satellites_multiple_dates_data, benchmark
+def test_single_satellite_multiple_dates_large(
+    single_satellite_multiple_dates_data_large, benchmark
+):
+    (
+        (line1, line2),
+        epochs,
+        expected_shape,
+    ) = single_satellite_multiple_dates_data_large
+    jd, fr = jday_from_epochs(epochs)
+
+    satrec = numba_twoline2rv(NumbaSatrec(), line1, line2, WGS72)
+    e, r, v = benchmark(numba_sgp4_array, satrec, jd, fr)
+
+    assert_allclose(e, 0)
+    assert r.shape == expected_shape
+    assert v.shape == expected_shape
+
+
+def test_multiple_satellites_multiple_dates_medium(
+    multiple_satellites_multiple_dates_data_medium, benchmark
 ):
     (
         tles,
         epochs,
         expected_rs,
         expected_vs,
-    ) = multiple_satellites_multiple_dates_data
+    ) = multiple_satellites_multiple_dates_data_medium
     jd, fr = jday_from_epochs(epochs)
     satellites = List([numba_twoline2rv(NumbaSatrec(), *tle, WGS72) for tle in tles])
 
@@ -83,3 +101,17 @@ def test_multiple_satellites_multiple_dates(
     assert_allclose(e, 0)
     assert_allclose(r, expected_rs)
     assert_allclose(v, expected_vs)
+
+
+def test_multiple_satellites_multiple_dates_large(
+    multiple_satellites_multiple_dates_data_large, benchmark
+):
+    (tles, epochs, expected_shape) = multiple_satellites_multiple_dates_data_large
+    jd, fr = jday_from_epochs(epochs)
+    satellites = List([numba_twoline2rv(NumbaSatrec(), *tle, WGS72) for tle in tles])
+
+    e, r, v = benchmark(numba_sgp4_many, satellites, jd, fr)
+
+    assert_allclose(e, 0)
+    assert r.shape == expected_shape
+    assert v.shape == expected_shape

@@ -18,7 +18,7 @@ def single_satellite_single_date_data():
 
 
 @pytest.fixture
-def single_satellite_multiple_dates_data():
+def single_satellite_multiple_dates_data_medium():
     tle = (
         "1 41557U 16033B   20345.20030338  .00003290  00000-0  12071-3 0  9996",
         "2 41557  97.3998  74.3002 0013100 179.2679 265.4184 15.28602096252616",
@@ -243,7 +243,22 @@ def single_satellite_multiple_dates_data():
 
 
 @pytest.fixture
-def multiple_satellites_multiple_dates_data():
+def single_satellite_multiple_dates_data_large():
+    tle = (
+        "1 41557U 16033B   20345.20030338  .00003290  00000-0  12071-3 0  9996",
+        "2 41557  97.3998  74.3002 0013100 179.2679 265.4184 15.28602096252616",
+    )
+    epochs = (
+        [dt.datetime(2020, 12, 11, 12, 0, minute) for minute in range(60)]
+        + [dt.datetime(2020, 12, 11, 12, hour, 0) for hour in range(1, 24)]
+        + [dt.datetime(2020, 12, day, 0, 0, 0) for day in range(13, 31)]
+    ) * 100
+
+    return tle, epochs, (len(epochs), 3)
+
+
+@pytest.fixture
+def multiple_satellites_multiple_dates_data_medium():
     tle = (
         "1 41557U 16033B   20345.20030338  .00003290  00000-0  12071-3 0  9996",
         "2 41557  97.3998  74.3002 0013100 179.2679 265.4184 15.28602096252616",
@@ -470,3 +485,20 @@ def multiple_satellites_multiple_dates_data():
     expected_vs = np.tile(np.array(expected_vs)[None, ...], (100, 1, 1))
 
     return tles, epochs, expected_rs, expected_vs
+
+
+@pytest.fixture
+def multiple_satellites_multiple_dates_data_large():
+    tle = (
+        "1 41557U 16033B   20345.20030338  .00003290  00000-0  12071-3 0  9996",
+        "2 41557  97.3998  74.3002 0013100 179.2679 265.4184 15.28602096252616",
+    )
+    # TODO: Use different TLEs?
+    tles = [tle] * 10_000
+    epochs = (
+        [dt.datetime(2020, 12, 11, 12, 0, minute) for minute in range(60)]
+        + [dt.datetime(2020, 12, 11, 12, hour, 0) for hour in range(1, 24)]
+        + [dt.datetime(2020, 12, day, 0, 0, 0) for day in range(13, 31)]
+    ) * 100
+
+    return tles, epochs, (len(tles), len(epochs), 3)

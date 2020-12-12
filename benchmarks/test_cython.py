@@ -40,15 +40,15 @@ def test_single_satellite_single_date(single_satellite_single_date_data, benchma
     assert v == pytest.approx(expected_v)
 
 
-def test_single_satellite_multiple_dates(
-    single_satellite_multiple_dates_data, benchmark
+def test_single_satellite_multiple_dates_medium(
+    single_satellite_multiple_dates_data_medium, benchmark
 ):
     (
         (line1, line2),
         epochs,
         expected_rs,
         expected_vs,
-    ) = single_satellite_multiple_dates_data
+    ) = single_satellite_multiple_dates_data_medium
     jd, fr = jday_from_epochs(epochs)
     mjds = (jd - 2400000.5) + fr
 
@@ -61,15 +61,35 @@ def test_single_satellite_multiple_dates(
     assert_allclose(v, expected_vs, rtol=1e-6)  # Default rtol=1e-7 makes test fail
 
 
-def test_multiple_satellites_multiple_dates(
-    multiple_satellites_multiple_dates_data, benchmark
+def test_single_satellite_multiple_dates_large(
+    single_satellite_multiple_dates_data_large, benchmark
+):
+    (
+        (line1, line2),
+        epochs,
+        expected_shape,
+    ) = single_satellite_multiple_dates_data_large
+    jd, fr = jday_from_epochs(epochs)
+    mjds = (jd - 2400000.5) + fr
+
+    tles = np.array([PyTle("_", line1, line2)])
+    result = benchmark(propagate_many, mjds, tles)
+    r = result["eci_pos"]
+    v = result["eci_vel"]
+
+    assert r.shape == expected_shape
+    assert v.shape == expected_shape
+
+
+def test_multiple_satellites_multiple_dates_medium(
+    multiple_satellites_multiple_dates_data_medium, benchmark
 ):
     (
         tles,
         epochs,
         expected_rs,
         expected_vs,
-    ) = multiple_satellites_multiple_dates_data
+    ) = multiple_satellites_multiple_dates_data_medium
     jd, fr = jday_from_epochs(epochs)
     mjds = (jd - 2400000.5) + fr
 
@@ -80,3 +100,19 @@ def test_multiple_satellites_multiple_dates(
 
     assert_allclose(r, expected_rs, rtol=1e-6)  # Default rtol=1e-7 makes test fail
     assert_allclose(v, expected_vs, rtol=1e-6)  # Default rtol=1e-7 makes test fail
+
+
+def test_multiple_satellites_multiple_dates_large(
+    multiple_satellites_multiple_dates_data_large, benchmark
+):
+    (tles, epochs, expected_shape) = multiple_satellites_multiple_dates_data_large
+    jd, fr = jday_from_epochs(epochs)
+    mjds = (jd - 2400000.5) + fr
+
+    tles = np.array([PyTle("_", line1, line2) for (line1, line2) in tles])[..., None]
+    result = benchmark(propagate_many, mjds, tles)
+    r = result["eci_pos"]
+    v = result["eci_vel"]
+
+    assert r.shape == expected_shape
+    assert v.shape == expected_shape
