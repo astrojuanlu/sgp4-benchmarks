@@ -32,9 +32,12 @@ def test_single_satellite_single_date(single_satellite_single_date_data, benchma
     (line1, line2), epoch, expected_r, expected_v = single_satellite_single_date_data
 
     sat = Satellite(PyTle("_", line1, line2), None, PyDateTime(epoch))
-    benchmark(sat.eci_pos)
-    r = sat.eci_pos().loc
-    v = sat.eci_pos().vel
+
+    def f():
+        p = sat.eci_pos()
+        return p.loc, p.vel
+
+    r, v = benchmark(f)
 
     assert r == pytest.approx(expected_r)
     assert v == pytest.approx(expected_v)

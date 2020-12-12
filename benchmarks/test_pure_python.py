@@ -36,7 +36,11 @@ def test_single_satellite_single_date(single_satellite_single_date_data, benchma
     jd, fr = jday(*datetime_components(epoch))
 
     satrec = PurePythonSatrec.twoline2rv(line1, line2, WGS72)
-    e, r, v = benchmark(satrec.sgp4, jd, fr)
+
+    def f():
+        return satrec.sgp4(jd, fr)
+
+    e, r, v = benchmark(f)
 
     assert e == 0
     assert r == pytest.approx(expected_r)

@@ -56,7 +56,11 @@ def test_single_satellite_single_date(single_satellite_single_date_data, benchma
     components = datetime_components(epoch)
 
     satellite = vec_twoline2rv(line1, line2, wgs72)
-    r, v = benchmark(satellite.propagate, *components)
+
+    def f():
+        return satellite.propagate(*components)
+
+    r, v = benchmark(f)
 
     assert satellite.error == 0
     assert r == pytest.approx(expected_r)
