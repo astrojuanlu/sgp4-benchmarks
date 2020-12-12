@@ -1,5 +1,7 @@
 # SGP4 benchmarks
 
+## Installation
+
 Install the dependencies:
 
 ```
@@ -11,6 +13,8 @@ or, alternatively:
 ```
 (env) $ python -m pip install pip-tools && pip-sync
 ```
+
+## Running the benchmarks
 
 To run the benchmarks:
 
